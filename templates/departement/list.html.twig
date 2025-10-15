@@ -1,0 +1,108 @@
+
+     {% extends "base.html.twig" %}
+      {% block body %}
+      <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Liste des Departements</h1>
+        </div>
+        
+        <!-- Enregistrement d'un Departement -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Nom du  Departement ...">
+                            
+                        </div>
+                    </div>
+                    <div class="col-md-2"> 
+                       <button class="btn btn-outline-secondary" type="button">
+                               Enregistrer
+                        </button>
+                    </div>
+                   
+
+                    
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Liste des comptes -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                  <th>Nbre Employe</th>
+                                <th>Date Creation</th>
+                                 <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for departement in departements %}
+                                <tr>
+                                <td>{{departement.id}}</td>
+                                <td>{{departement.name}}</td>
+                                 <td><span class="badge bg-primary"> {{departement.employes|length}} </span></td>
+                                <td>{{departement.createAt|date("d/m/Y")}}</td>
+                                <td><span class="badge bg-info" style="width:80px">
+                                     {% if departement.isArchived %}
+                                          Archiver
+                                      {% else %}
+                                           Actif
+                                     {% endif %}
+                                </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{path('app_employe_list',{idDept:departement.id})}}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i> Employes
+                                        </a>
+                                        <a href="#"  class="btn btn-sm btn-warning">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <a href="#"  class="btn btn-sm btn-danger
+                                          {% if departement.isArchived %} disabled {% endif %}
+                                        ">
+                                            <i class="fas fa-trash"></i>Archiver
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% else %}
+                              <div class="alert alert-danger" role="alert">
+                                  La liste de departement est vide
+                              </div>
+                              
+                        {% endfor %}
+                           
+                            
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
+                        </li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">Suivant</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+  
