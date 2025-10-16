@@ -68,14 +68,7 @@
                                 <td>{{employe.telephone}}</td>
                                 <td>{{employe.embaucheAt|date("d/m/Y")}}</td>
                                 <td>{{employe.departement.name}}</td>
-                                <td><span class="badge bg-info" style="width:80px">
-                                     {% if employe.isArchived %}
-                                          Archiver
-                                      {% else %}
-                                           Actif
-                                     {% endif %}
-                                </span></td>
-                                
+                                <td>{% include 'components/badge.html.twig' with {'color':'info','isArchived':employe.isArchived } %}</td>
                                 <td>
                                     <div class="btn-group">
                                         <a href="#" class="btn btn-sm btn-primary">
@@ -96,19 +89,7 @@
                     </table>
                 </div>
                 <!-- Pagination -->
-                <nav aria-label="Page navigation" class="mt-4">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Précédent</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Suivant</a>
-                        </li>
-                    </ul>
-                </nav>
+                      {% include 'components/pagination.html.twig' with {'nbrePage':nbrePage,'pageEncours':pageEncours,'pathName':'app_employe_list'}  %}
 
                  {% else %}
                      {% if departement %}
