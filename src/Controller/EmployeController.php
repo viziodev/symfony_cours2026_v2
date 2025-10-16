@@ -5,12 +5,13 @@ namespace App\Controller;
 use App\Repository\DepartementRepository;
 use App\Repository\EmployeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class EmployeController extends AbstractController
 {
-
+   private const LIMIT=10;
     public function __construct(private readonly EmployeRepository $employeRepository,
                                 private readonly DepartementRepository $departementRepository)
     {
@@ -26,7 +27,7 @@ final class EmployeController extends AbstractController
                       http://127.0.0.1:8000/employe/list/1
      */
     #[Route('/employe/list/{idDept?}', name: 'app_employe_list')]
-    public function list($idDept): Response
+    public function list($idDept,Request $request): Response
     { 
           $departement=null;
           $filtre=[
@@ -37,10 +38,18 @@ final class EmployeController extends AbstractController
               $departement=$this->departementRepository->find($idDept);
 
           }
-        $employes=$this->employeRepository->findBy($filtre);
+           $page=$request->query->get("page",1);
+           $offset=($page-1)*self::LIMIT;
+
+          $count =$this->employeRepository->count($filtre);
+          $nbrePage=  ceil($count /self::LIMIT);
+          $employes=$this->employeRepository->findBy($filtre,null,self::LIMIT, $offset);
+         
         return $this->render('employe/list.html.twig', [
             'employes' =>  $employes,
-            "departement"=>$departement
+            "departement"=>$departement,
+            "nbrePage"=>$nbrePage,
+            "pageEncours"=>$page
         ]);
     }
 
