@@ -2,6 +2,10 @@
 
 namespace App\Controller;
 
+use App\Dto\EmployeDto;
+use App\Dto\EmployeSearchDto;
+use App\Form\EmployeSearchType;
+use App\Form\EmployeType;
 use App\Repository\DepartementRepository;
 use App\Repository\EmployeRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
 final class EmployeController extends AbstractController
 {
-       private const LIMIT=4;
+       private const LIMIT=20;
 
     public function __construct(private readonly EmployeRepository $employeRepository,
                                 private readonly DepartementRepository $departementRepository)
@@ -30,36 +34,63 @@ final class EmployeController extends AbstractController
     #[Route('/employe/list/{idDept?}', name: 'app_employe_list')]
     public function list($idDept,Request $request): Response
     { 
-          $departement=null;
-          $page=(int)$request->query->get("page",1);
-          $offset=($page-1)*self::LIMIT;
-          $filtre=[
-            "isArchived"=>false
-          ];
-          if ($idDept!=null) {
-              $filtre["departement"]=$idDept;
-              $departement=$this->departementRepository->find($idDept);
+             $departement=null;
+             $filtre=[
+                 "isArchived"=>false
+             ];
+             if ($idDept!=null) {
+                $filtre["departement"]=$idDept;
+                $departement=$this->departementRepository->find($idDept);
+
+            }
+            $dataForm = new EmployeSearchDto();
+            $form = $this->createForm(EmployeSearchType::class, $dataForm);
+            $form->handleRequest($request);
+            $page = max(1, (int)$request->query->get('page', 1));
+            $offset = ($page - 1) * self::LIMIT;
+
+            if ($form->isSubmitted()) {
+                if ($dataForm->isArchived !== null) {
+                    $filtre['isArchived'] = $dataForm->isArchived;
+                }
+                if (!empty($dataForm->numero)) {
+                    $filtre['numero'] = $dataForm->numero;
+                }
+                if ($dataForm->departement !== null) {
+                    $filtre['departement'] = $dataForm->departement; 
+                }
+            
+            }
+            $employes = $this->employeRepository->findBy($filtre, [], self::LIMIT, $offset);
+            $nbrePage = ceil($this->employeRepository->count($filtre) / self::LIMIT);
+            return $this->render('employe/list.html.twig', [
+              'employes' => $employes,
+              'pageEncours' => $page,
+              'nbrePage' => $nbrePage,
+              'formSearchEmp' => $form->createView(),
+               "departement"=> $departement
+            ]);
 
           }
-           $employes=$this->employeRepository->findBy($filtre,[],self::LIMIT, $offset);
-           $nbrePage=ceil($this->departementRepository->count($filtre)/self::LIMIT);
-        return $this->render('employe/list.html.twig', [
-            'employes' =>  $employes,
-            "departement"=>$departement,
-             "pageEncours"=>$page,
-             "nbrePage"=>$nbrePage
-        ]);
-    }
+
 
      /*
         Creer un Employe ==>POST(name)
      */
 
      #[Route('/employe/add', name: 'app_employe_add')]
-     public function save(): Response
+     public function save(Request $request): Response
      {
-         return $this->render('employe/form.html.twig', [
-             'controller_name' => 'EmployeController',
-         ]);
+        $dataForm=new EmployeDto();
+           $form=$this->createForm(EmployeType::class,$dataForm);
+           $form->handleRequest($request);
+           $page=(int)$request->query->get("page",1);
+           if ( $form->isSubmitted() && $form->isValid()) {
+                dd($dataForm);
+                return $this->redirectToRoute('app_employe_list');
+           }
+          return $this->render('employe/form.html.twig', [
+              'formEmp'=> $form->createView()
+          ]);
      }
 }

@@ -9,21 +9,26 @@
         <!-- Enregistrement d'un Departement -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
+            {{form_start(formDept)}}
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Nom du  Departement ...">
-                            
+                              {{form_widget(formDept.name)}}
                         </div>
+                         <div class="text-danger small">
+                               {{form_errors(formDept.name) }}
+                        </div>
+                        
                     </div>
                     <div class="col-md-2"> 
-                       <button class="btn btn-outline-secondary" type="button">
+                       <button class="btn btn-outline-secondary" type="submit">
                                Enregistrer
                         </button>
                     </div>
                     
                 </div>
             </div>
+          {{form_end(formDept)}}
         </div>
         
         <!-- Liste des comptes -->
@@ -84,4 +89,6 @@
         </div>
     </div>
 {% endblock %}
+
+
   

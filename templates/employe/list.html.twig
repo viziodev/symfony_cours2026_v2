@@ -11,35 +11,27 @@
         <!-- Filtres et recherche -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
+            {{form_start(formSearchEmp)}}
                 <div class="row g-3">
                     <div class="col-md-3">
                         <div class="input-group">
-                            <input type="text" class="form-control" placeholder="Recherche sur numero...">
-                            
+                            {{form_widget(formSearchEmp.numero,{attr:{placeholder:'Recherche sur numero...'}})}}
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <select class="form-select">
-                            <option >Statut</option>
-                              <option selected>Actif</option>
-                              <option>Archiver</option>
-                            
-                        </select>
+                      {{form_widget(formSearchEmp.isArchived,{attr:{class:"form-select"}})}}
                     </div>
                     <div class="col-md-3">
-                        <select class="form-select">
-                            <option selected>Departement</option>
-                            <option></option>
-                            
-                        </select>
+                        {{form_widget(formSearchEmp.departement,{attr:{class:"form-select"},placeholder:'Selectionner'})}}
                     </div>
                    <div class="col-md-3">
-                     <button class="btn btn-outline-secondary" type="button">
+                     <button class="btn btn-outline-secondary" type="submit">
                                 <i class="fas fa-search"></i> Rechercher
                       </button>
                     </div>
                     
                 </div>
+            {{form_end(formSearchEmp)}}
             </div>
         </div>
         
