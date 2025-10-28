@@ -8,6 +8,8 @@ use App\Form\EmployeSearchType;
 use App\Form\EmployeType;
 use App\Repository\DepartementRepository;
 use App\Repository\EmployeRepository;
+use App\Services\GenerateNumero;
+use App\Services\UploadPhotoService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -63,7 +65,9 @@ final class EmployeController extends AbstractController
                 }
             
             }
-            $employes = $this->employeRepository->findBy($filtre, [], self::LIMIT, $offset);
+            $employes = $this->employeRepository->findBy($filtre, [
+                'createAt' => 'DESC'
+            ], self::LIMIT, $offset);
             $nbrePage = ceil($this->employeRepository->count($filtre) / self::LIMIT);
             return $this->render('employe/list.html.twig', [
               'employes' => $employes,
@@ -81,15 +85,26 @@ final class EmployeController extends AbstractController
      */
 
      #[Route('/employe/add', name: 'app_employe_add')]
-     public function save(Request $request): Response
+     public function save(Request $request,GenerateNumero $faker,UploadPhotoService $file): Response
      {
-        $dataForm=new EmployeDto();
-           $form=$this->createForm(EmployeType::class,$dataForm);
-           $form->handleRequest($request);
-           $page=(int)$request->query->get("page",1);
+               $dataForm=new EmployeDto();
+               $dataForm->numero=$faker->generate();
+               $form=$this->createForm(EmployeType::class,$dataForm);
+               $form->handleRequest($request);
            if ( $form->isSubmitted() && $form->isValid()) {
-             
-                return $this->redirectToRoute('app_employe_list');
+                /** @var EmployeDto $data */
+                $data = $form->getData();
+                  $employe = $data->toEntity();
+                  $photoFile = $form->get('photo')->getData();
+                  if ($photoFile) {
+                    $uploadDir = $this->getParameter('photos_directory');
+                    $photoFilename = $file->uploadPhoto($uploadDir, $photoFile);
+                    $employe->setPhoto($photoFilename);
+                   }
+
+                  $this->employeRepository->save($employe,true);
+                  $this->addFlash('success', 'Employé créé avec succès.');
+                  return $this->redirectToRoute('app_employe_list');
            }
           return $this->render('employe/form.html.twig', [
               'formEmp'=> $form->createView()

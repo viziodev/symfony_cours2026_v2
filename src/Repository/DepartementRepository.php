@@ -33,4 +33,6 @@ class DepartementRepository extends ServiceEntityRepository implements Repositor
     {
         return $this->count($filters);
     }
+
+    
 }

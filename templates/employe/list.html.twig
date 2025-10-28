@@ -44,11 +44,14 @@
         <!-- Liste des comptes -->
         <div class="card border-0 shadow-sm">
             <div class="card-body">
+            
             {% if employes|length >0 %}
+                 {% include 'components/alert.html.twig' %}
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>Photo</th>
                                 <th>Numero</th>
                                 <th>Nom et Prenom</th>
                                 <th>Telephone</th>
@@ -61,6 +64,13 @@
                         <tbody>
                         {% for employe in employes %}
                                 <tr>
+                              <td>
+                                {% if employe.photo %}
+                                    <img src="{{ asset('uploads/photos/' ~ employe.photo) }}" alt="Photo de {{ employe.nomComplet }}" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% else %}
+                                    <span>Aucune photo</span>
+                                {% endif %}
+                            </td>
                                 <td>{{employe.numero}}</td>
                                 <td>{{employe.nomComplet}}</td>
                                 <td>{{employe.telephone}}</td>
