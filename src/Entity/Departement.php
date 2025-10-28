@@ -6,9 +6,12 @@ use App\Repository\DepartementRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: DepartementRepository::class)]
 #[ORM\Table(name:"departements")]
+#[UniqueEntity(fields:["name"], message:"La  {{ value }} existe deja")]
 class Departement
 {
     #[ORM\Id]
@@ -16,6 +19,17 @@ class Departement
     #[ORM\Column]
     private ?int $id = null;
 
+    /*
+      Name est Obligatoire 
+      Name est unique
+     */
+    #[Assert\NotBlank(message:"Le nom du departement est obligatoire")]
+    #[Assert\Length(
+        min:3,
+        max:100,
+        minMessage:"Le nom du departement doit avoir au moins {{ limit }} caracteres",
+        maxMessage:"Le nom du departement doit avoir au plus {{ limit }} caracteres"
+    )]
     #[ORM\Column(length: 100,unique:true)]
     private ?string $name = null;
 

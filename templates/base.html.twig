@@ -15,7 +15,12 @@
             {% block stylesheets %}
                 <link rel="stylesheet" href="{{asset('css/style.css')}}">
             {% endblock %}
-
+            <style type="text/css">
+                        {% block custumStylesheets %}
+                            
+                                
+                        {% endblock %}
+            </style>
         {% block javascripts %}
             {% block importmap %}{{ importmap('app') }}{% endblock %}
         {% endblock %}

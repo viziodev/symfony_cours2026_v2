@@ -11,6 +11,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class DepartementType extends AbstractType
 {
+
+    //champs du formulaire
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -27,10 +29,11 @@ class DepartementType extends AbstractType
         ;
     }
 
+    //<form> </form>
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'data_class' => Departement::class,
+            'data_class' => Departement::class,//entity lie au formulaire
         ]);
     }
 }

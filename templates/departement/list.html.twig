@@ -9,23 +9,27 @@
         <!-- Enregistrement d'un Departement -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-              {{form_start(formDept)}}
+            {% include 'components/messageFlash.html.twig' %}
+              {{form_start(formDept,{'attr':{
+                  'data-turbo':'false'
+              }})}}    <!-- <form> -->
                  <div class="row g-3">
                     <div class="col-md-6">
                         <div class="input-group">
-                              {{form_widget(formDept.name)}}
+                              {{form_widget(formDept.name)}} <!-- <input > -->
                         </div>
+                         <div class="text-danger">
+                            {{form_errors(formDept.name)}}  
+                         </div>
                     </div>
                     <div class="col-md-2"> 
                         {{form_widget(formDept.btnSaveDept,{label:"Enregistrer", attr:{'class':'btn btn-outline-secondary'}})}}
                     </div>
                    
-
-                    
                     
                  </div>
 
-                 {{form_end(formDept)}}
+                 {{form_end(formDept)}} <!-- </form> -->
             </div>
         </div>
         
@@ -49,7 +53,7 @@
                                 <tr>
                                 <td>{{departement.id}}</td>
                                 <td>{{departement.name}}</td>
-                                 <td><span class="badge bg-primary"> {{departement.employes|length}} </span></td>
+                                 <td><span class="badge bg-primary"> {{departement.nbreEmploye}} </span></td>
                                 <td>{{departement.createAt|date("d/m/Y")}}</td>
                                 <td> {% include "components/statut.html.twig" with {active:departement.isArchived, color:'info'} %} </td>
                                 <td>
@@ -84,4 +88,7 @@
         </div>
     </div>
 {% endblock %}
+
+
+
   

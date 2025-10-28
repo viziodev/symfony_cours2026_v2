@@ -40,4 +40,12 @@ class DepartementRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+    public function save(Departement $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($entity);//prepare l'insertion
+
+        if ($flush) {
+            $this->getEntityManager()->flush();//execute l'insertion
+        }
+    }
 }

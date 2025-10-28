@@ -40,4 +40,13 @@ class EmployeRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function save(Employe $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($entity);//prepare l'insertion
+
+        if ($flush) {
+            $this->getEntityManager()->flush();//execute l'insertion
+        }
+    }
 }

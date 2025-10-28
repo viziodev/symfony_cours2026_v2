@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\EmployeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: EmployeRepository::class)]
 class Employe
@@ -15,9 +17,21 @@ class Employe
     private ?int $id = null;
 
     #[ORM\Column(length: 200)]
+    #[Assert\NotBlank(message:"Le nom et le prenom de l'employe est obligatoire")]
+    #[Assert\Length(
+        min:4,
+        max:25,
+        minMessage:"Le  nom et le prenom  de l'employe doit avoir au moins {{ limit }} caracteres",
+        maxMessage:"Le  nom et le prenom  de l'employe doit avoir au plus {{ limit }} caracteres"
+    )]
     private ?string $nomComplet = null;
 
     #[ORM\Column(length: 25,unique:true)]
+      #[Assert\NotBlank(message:"Le Telephone de l'employe est obligatoire")]
+       #[Assert\Regex(
+        pattern: "/^(77|78)\d{7}$/",
+        message: "Le numéro de téléphone '{{ value }}' n'est pas valide. Il doit contenir 9 chiffres et peut commencer par 77 ou 78."
+    )]
     private ?string $telephone = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
@@ -31,6 +45,8 @@ class Employe
 
     #[ORM\ManyToOne(inversedBy: 'employes')]
     #[ORM\JoinColumn(nullable: false)]
+
+    #[Assert\NotNull(message:"Le departement de l'employe est obligatoire")]
     private ?Departement $departement = null;
 
     public function __construct()
@@ -45,6 +61,10 @@ class Employe
     private ?string $numero = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\LessThanOrEqual(
+        'today',
+         message: "La date d'embauche ne peut pas être superieur a la date du jour."
+    )]
     private ?\DateTimeImmutable $embaucheAt = null;
 
     public function getId(): ?int

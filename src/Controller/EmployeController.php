@@ -2,8 +2,12 @@
 
 namespace App\Controller;
 
+use App\DTO\EmployeSearchFormDto;
+use App\Entity\Employe;
+use App\Form\EmployeType;
 use App\Repository\DepartementRepository;
 use App\Repository\EmployeRepository;
+use App\Service\GenerateNumeroService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +33,9 @@ final class EmployeController extends AbstractController
     #[Route('/employe/list/{idDept?}', name: 'app_employe_list')]
     public function list($idDept,Request $request): Response
     { 
+             $searchFormDto=new EmployeSearchFormDto();
+             $form=$this->createForm(\App\Form\EmployeSearchType::class, $searchFormDto);
+
           $departement=null;
           $filtre=[
             "isArchived"=>false
@@ -43,13 +50,16 @@ final class EmployeController extends AbstractController
 
           $count =$this->employeRepository->count($filtre);
           $nbrePage=  ceil($count /self::LIMIT);
-          $employes=$this->employeRepository->findBy($filtre,null,self::LIMIT, $offset);
+          $employes=$this->employeRepository->findBy($filtre,[
+            "id"=>"desc"
+          ],self::LIMIT, $offset);
          
         return $this->render('employe/list.html.twig', [
             'employes' =>  $employes,
             "departement"=>$departement,
             "nbrePage"=>$nbrePage,
-            "pageEncours"=>$page
+            "pageEncours"=>$page,
+            "formSearchEmp"=>$form->createView()
         ]);
     }
 
@@ -57,11 +67,22 @@ final class EmployeController extends AbstractController
         Creer un Employe ==>POST(name)
      */
 
-     #[Route('/employe/add', name: 'app_employe_add')]
-     public function save(): Response
+     #[Route('/employe/add', name: 'app_employe_add',methods:["GET","POST"])]
+     public function save(Request $request,GenerateNumeroService $numService): Response
      {
+        $employe=new Employe();
+        $employe->setNumero($numService->generateNumeroCompte());
+        $form=$this->createForm(EmployeType::class, $employe);
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid()){
+           $this->employeRepository->save($employe, true);
+           $this->addFlash('success',"Employe ajouté avec succès");
+            return $this->redirectToRoute('app_employe_list');
+
+        }
+
          return $this->render('employe/form.html.twig', [
-             'controller_name' => 'EmployeController',
+             'formEmp' => $form->createView()
          ]);
      }
 }
