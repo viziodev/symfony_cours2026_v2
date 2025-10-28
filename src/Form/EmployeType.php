@@ -41,8 +41,6 @@ class EmployeType extends AbstractType
                  'label' => 'Archived',
                  'required' => false,
                  'data' => false, 
-                 
-               
 
             ])
             ->add('btnSave', SubmitType::class, [

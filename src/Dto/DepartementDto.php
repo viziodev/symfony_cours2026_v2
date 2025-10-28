@@ -1,15 +1,27 @@
 <?php 
 namespace App\Dto;
+
+use App\Repository\DepartementRepository;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 
 class DepartementDto
 {
- public int $id ;
-#[Assert\Length(
-                min: 2,
-                max: 100,
-                minMessage:'Le nom doit contenir au moins {{limit}} caractere',
-                maxMessage:'Le nom doit contenir au plus {{limit}} caractere')]
-#[Assert\NotBlank(message:'Le nom est obligatoire')]
- public string $name ;
+  public int $id;
+  #[Assert\NotBlank(message: 'Le nom est obligatoire')]
+  #[Assert\Length( 
+        min: 2,
+        max: 100,
+        minMessage: 'Le nom doit contenir au moins {{ limit }} caractères',
+        maxMessage: 'Le nom doit contenir au plus {{ limit }} caractères'
+    )]
+  public string $name;
+  public int $nbreEmployes=0;
+  public ?\DateTimeImmutable $createAt=null;
+  public ?bool $archived=null;
+  public function __construct(
+        private ?DepartementRepository $departementRepository = null
+    ) {}
+
+
 }

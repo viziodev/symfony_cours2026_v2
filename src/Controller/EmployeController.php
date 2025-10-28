@@ -44,7 +44,9 @@ final class EmployeController extends AbstractController
 
             }
             $dataForm = new EmployeSearchDto();
-            $form = $this->createForm(EmployeSearchType::class, $dataForm);
+            $form = $this->createForm(EmployeSearchType::class, $dataForm,[
+                     'default_departement' => $departement
+              ]);
             $form->handleRequest($request);
             $page = max(1, (int)$request->query->get('page', 1));
             $offset = ($page - 1) * self::LIMIT;
@@ -86,7 +88,7 @@ final class EmployeController extends AbstractController
            $form->handleRequest($request);
            $page=(int)$request->query->get("page",1);
            if ( $form->isSubmitted() && $form->isValid()) {
-                dd($dataForm);
+             
                 return $this->redirectToRoute('app_employe_list');
            }
           return $this->render('employe/form.html.twig', [

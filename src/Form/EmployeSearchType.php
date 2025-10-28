@@ -28,7 +28,9 @@ class EmployeSearchType extends AbstractType
             ->add('departement', EntityType::class, [
                  'class' => Departement::class,
                  'choice_label' => 'name',
-                 "required"=>false
+                 "required"=>false,
+                 'data' => $options['default_departement'], 
+                 
             ])
         ;
     }
@@ -37,6 +39,7 @@ class EmployeSearchType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => EmployeSearchDto::class,
+            'default_departement' => null, 
         ]);
     }
 }

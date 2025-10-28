@@ -11,7 +11,13 @@
         <!-- Filtres et recherche -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body">
-            {{form_start(formSearchEmp)}}
+            {{
+                 form_start(formSearchEmp,{
+                     'attr': {
+                      'data-turbo': 'false' 
+                      }
+                   })
+                   }}
                 <div class="row g-3">
                     <div class="col-md-3">
                         <div class="input-group">
