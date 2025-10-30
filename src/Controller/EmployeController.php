@@ -36,6 +36,7 @@ final class EmployeController extends AbstractController
     #[Route('/employe/list/{idDept?}', name: 'app_employe_list')]
     public function list($idDept,Request $request): Response
     { 
+            $this->denyAccessUnlessGranted('ROLE_ADMIN');
              $departement=null;
              $filtre=[
                  "isArchived"=>false
