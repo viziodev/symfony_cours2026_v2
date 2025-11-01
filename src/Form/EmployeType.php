@@ -8,6 +8,7 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -68,9 +69,15 @@ class EmployeType extends AbstractType
                  'required'=>false,
                   "mapped"=>false
               ])
-          
-          
-            ->add("btnSaveDept",SubmitType::class,[
+              ->add('photoFile', FileType::class, [
+                 'label' => 'Photo de profil',
+                 'required' => false,
+                 'mapped' => false, // Non mappé directement à l'entité
+                'attr' => [
+                    'accept' => 'image/jpeg,image/png,image/webp',
+                ]
+             ])
+             ->add("btnSaveDept",SubmitType::class,[
                 "label"=>"Enregistrer l'Employe",
                 "attr"=>[
                     "class"=>"btn btn-primary float-end"

@@ -46,6 +46,7 @@
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>Photo</th>
                                 <th>Numero</th>
                                 <th>Nom et Prenom</th>
                                 <th>Telephone</th>
@@ -58,6 +59,16 @@
                         <tbody>
                         {% for employe in employes %}
                                 <tr>
+                                <td>
+                                    {% for employe in employes %}
+                                            {% if employe.photoUrl %}
+                                                <img src="{{ asset( employe.photoUrl) }}" 
+                                                    alt="{{ employe.nomComplet }}" 
+                                                    style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+                                             {% else %}
+                                                <span class="img-thumbnail"></span>
+                                            {% endif %}
+                                        {% endfor %}
                                 <td>{{employe.numero}}</td>
                                 <td>{{employe.nomComplet}}</td>
                                 <td>{{employe.telephone}}</td>

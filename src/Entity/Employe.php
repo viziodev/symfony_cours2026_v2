@@ -6,15 +6,12 @@ use App\Repository\EmployeRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
 
 #[ORM\Entity(repositoryClass: EmployeRepository::class)]
-class Employe
+class Employe extends User
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    
 
     #[ORM\Column(length: 200)]
     #[Assert\NotBlank(message:"Le nom et le prenom de l'employe est obligatoire")]
@@ -67,10 +64,18 @@ class Employe
     )]
     private ?\DateTimeImmutable $embaucheAt = null;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $photo = null;
+
+     // Propriété temporaire pour le fichier uploadé (non mappée en BD)
+    #[Assert\Image(
+        maxSize: '2M',
+        mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+        mimeTypesMessage: 'Veuillez uploader une image valide (JPEG, PNG, WEBP)'
+    )]
+    private $photoFile = null;
+
+    
 
     public function getNomComplet(): ?string
     {
@@ -177,6 +182,29 @@ class Employe
     {
         $this->embaucheAt = $embaucheAt;
 
+        return $this;
+    }
+
+    public function getPhoto(): ?string
+    {
+        return $this->photo;
+    }
+
+    public function setPhoto(?string $photo): static
+    {
+        $this->photo = $photo;
+
+        return $this;
+    }
+
+    public function getPhotoFile()
+    {
+        return $this->photoFile;
+    }
+
+    public function setPhotoFile($photoFile): self
+    {
+        $this->photoFile = $photoFile;
         return $this;
     }
 }

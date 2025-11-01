@@ -10,14 +10,16 @@ use App\Form\EmployeType;
 use App\Repository\DepartementRepository;
 use App\Repository\EmployeRepository;
 use App\Service\GenerateNumeroService;
+use App\Service\Impl\FileUploader;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class EmployeController extends AbstractController
 {
-   private const LIMIT=10;
+  
     public function __construct(private readonly EmployeRepository $employeRepository,
                                 private readonly DepartementRepository $departementRepository)
     {
@@ -33,52 +35,66 @@ final class EmployeController extends AbstractController
                       http://127.0.0.1:8000/employe/list/1
      */
     #[Route('/employe/list/{idDept?}', name: 'app_employe_list',methods:["GET","POST"])]
-    public function list($idDept,Request $request): Response
+    public function list($idDept,Request $request,SessionInterface $session): Response
     { 
           //Filtre par defaut
              $departement=null;
              $filtre=[
               "isArchived"=>false
              ];
-              if ($idDept!=null) {
+              // Récupération de la page courante
+              $page = $request->query->get("page", 1);
+               if ($idDept!=null) {
                     $filtre["departement"]=$idDept;
                     $departement=$this->departementRepository->find($idDept);
-             }
-             $searchFormDto=new EmployeSearchFormDto();
-             $form=$this->createForm(\App\Form\EmployeSearchType::class, $searchFormDto,[
-                'method'=>'POST',
-                //'action'=>$this->generateUrl('app_employe_list',["idDept"=>$idDept]),
-                'departement_default'=>$departement
+              }
+              $searchFormDto=new EmployeSearchFormDto();
+              $form=$this->createForm(\App\Form\EmployeSearchType::class, $searchFormDto,[
+                 'method' => 'GET', // Changé en GET pour maintenir les filtres dans l'URL
+                 'departement_default'=>$departement,
+                 'csrf_protection' => false, // Désactivation du token CSRF
 
-             ]);
-             $form->handleRequest($request);
-             if ( $form->isSubmitted()) {
-                     if ($searchFormDto->numero!=null) {
-                      $filtre["numero"]=$searchFormDto->numero;
+              ]);
+               $form->handleRequest($request);
+               if ( $form->isSubmitted() ) {
+
+                     // Réinitialiser la page à 1 lors d'une nouvelle recherche
+                        if ($searchFormDto->numero!=null) {
+                        $filtre["numero"]=$searchFormDto->numero;
+                        }
+                        $filtre["departement"]=$searchFormDto->departement;
+                        $filtre["isArchived"]=$searchFormDto->isArchived;
+               }
+            
+               // Calcul de la pagination
+               $offset = ($page - 1) * $this->getParameter('LIMIT_PER_PAGE');
+               $count = $this->employeRepository->count($filtre);
+               $nbrePage = ceil($count / $this->getParameter('LIMIT_PER_PAGE'));
+
+               // Validation de la page
+                 if ($page > $nbrePage && $nbrePage > 0) {
+                      $page = $nbrePage;
+                     $offset = ($page - 1) * $this->getParameter('LIMIT_PER_PAGE');
                      }
-                      $filtre["departement"]=$searchFormDto->departement;
-                      $filtre["isArchived"]=$searchFormDto->isArchived;
-                 
-             }
-            $page=$request->query->get("page",1);
-            $offset=($page-1)*self::LIMIT;
-            $count =$this->employeRepository->count($filtre);
-            $nbrePage=  ceil($count /self::LIMIT);
-          //Envoyer les entities employe
-            $employes=$this->employeRepository->findBy($filtre,[
-            "id"=>"desc"
-          ],self::LIMIT, $offset);
+               // Récupération des employés avec pagination
+               $employes = $this->employeRepository->findBy(
+                  $filtre,
+                  ["id" => "desc"],
+                 $this->getParameter('LIMIT_PER_PAGE'),
+                  $offset
+              );
+  
+      // Conversion en DTO
+      $employesDto = EmployeListDto::fromEntities($employes);
+      $departementDto = $departement != null ? DepartementListDto::fromEntitie($departement) : null;
 
-          $employesDto=EmployeListDto::fromEntities($employes);
-          $departemetDto=$departement!=null?DepartementListDto::fromEntitie($departement):null;
-         
-         return $this->render('employe/list.html.twig', [
-            'employes' => $employesDto,
-            "departement"=>$departemetDto,
-            "nbrePage"=>$nbrePage,
-            "pageEncours"=>$page,
-            "formSearchEmp"=>$form->createView()
-        ]);
+      return $this->render('employe/list.html.twig', [
+         'employes' => $employesDto,
+         'departement' => $departementDto,
+         'nbrePage' => $nbrePage,
+         'pageEncours' => $page,
+         'formSearchEmp' => $form->createView(),
+      ]);
     }
 
      /*
@@ -86,7 +102,7 @@ final class EmployeController extends AbstractController
      */
 
      #[Route('/employe/add', name: 'app_employe_add',methods:["GET","POST"])]
-     public function save(Request $request,GenerateNumeroService $numService): Response
+     public function save(Request $request,GenerateNumeroService $numService,  FileUploader $fileUploader): Response
      {
         $employe=new Employe();
         $employe->setNumero($numService->generateNumeroCompte());
@@ -99,6 +115,17 @@ final class EmployeController extends AbstractController
              $ville=$form->get("ville")->getData();
              $rue=$form->get("pays")->getData();
              $employe->setAdresse("Rue: $rue - Ville: $ville - Pays: $pays");
+             $photoFile = $form->get('photoFile')->getData();
+            
+              if ($photoFile) {
+                try {
+                     $photoFileName = $fileUploader->upload($photoFile);
+                     $employe->setPhoto($photoFileName);
+                } catch (\Exception $e) {
+                    $this->addFlash('error', 'Erreur lors de l\'upload de la photo');
+                }
+            }
+
              $this->employeRepository->save($employe, true);
              $this->addFlash('success',"Employe ajouté avec succès");
              return $this->redirectToRoute('app_employe_list');
