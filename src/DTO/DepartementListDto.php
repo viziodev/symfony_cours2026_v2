@@ -11,6 +11,8 @@ class DepartementListDto
     public int  $nbreEmploye = 0;
     public DateTimeImmutable $createAt ;
 
+
+    //Mappers 
     public static function fromEntitie(Departement $entity): DepartementListDto
     {
         $dto = new DepartementListDto();

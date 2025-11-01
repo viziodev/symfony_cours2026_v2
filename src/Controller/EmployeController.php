@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\DTO\DepartementListDto;
+use App\DTO\EmployeListDto;
 use App\DTO\EmployeSearchFormDto;
 use App\Entity\Employe;
 use App\Form\EmployeType;
@@ -30,33 +32,49 @@ final class EmployeController extends AbstractController
                 Url : http://127.0.0.1:8000/employe/list
                       http://127.0.0.1:8000/employe/list/1
      */
-    #[Route('/employe/list/{idDept?}', name: 'app_employe_list')]
+    #[Route('/employe/list/{idDept?}', name: 'app_employe_list',methods:["GET","POST"])]
     public function list($idDept,Request $request): Response
     { 
+          //Filtre par defaut
+             $departement=null;
+             $filtre=[
+              "isArchived"=>false
+             ];
+              if ($idDept!=null) {
+                    $filtre["departement"]=$idDept;
+                    $departement=$this->departementRepository->find($idDept);
+             }
              $searchFormDto=new EmployeSearchFormDto();
-             $form=$this->createForm(\App\Form\EmployeSearchType::class, $searchFormDto);
+             $form=$this->createForm(\App\Form\EmployeSearchType::class, $searchFormDto,[
+                'method'=>'POST',
+                //'action'=>$this->generateUrl('app_employe_list',["idDept"=>$idDept]),
+                'departement_default'=>$departement
 
-          $departement=null;
-          $filtre=[
-            "isArchived"=>false
-          ];
-          if ($idDept!=null) {
-              $filtre["departement"]=$idDept;
-              $departement=$this->departementRepository->find($idDept);
-
-          }
-           $page=$request->query->get("page",1);
-           $offset=($page-1)*self::LIMIT;
-
-          $count =$this->employeRepository->count($filtre);
-          $nbrePage=  ceil($count /self::LIMIT);
-          $employes=$this->employeRepository->findBy($filtre,[
+             ]);
+             $form->handleRequest($request);
+             if ( $form->isSubmitted()) {
+                     if ($searchFormDto->numero!=null) {
+                      $filtre["numero"]=$searchFormDto->numero;
+                     }
+                      $filtre["departement"]=$searchFormDto->departement;
+                      $filtre["isArchived"]=$searchFormDto->isArchived;
+                 
+             }
+            $page=$request->query->get("page",1);
+            $offset=($page-1)*self::LIMIT;
+            $count =$this->employeRepository->count($filtre);
+            $nbrePage=  ceil($count /self::LIMIT);
+          //Envoyer les entities employe
+            $employes=$this->employeRepository->findBy($filtre,[
             "id"=>"desc"
           ],self::LIMIT, $offset);
+
+          $employesDto=EmployeListDto::fromEntities($employes);
+          $departemetDto=$departement!=null?DepartementListDto::fromEntitie($departement):null;
          
-        return $this->render('employe/list.html.twig', [
-            'employes' =>  $employes,
-            "departement"=>$departement,
+         return $this->render('employe/list.html.twig', [
+            'employes' => $employesDto,
+            "departement"=>$departemetDto,
             "nbrePage"=>$nbrePage,
             "pageEncours"=>$page,
             "formSearchEmp"=>$form->createView()
@@ -75,10 +93,15 @@ final class EmployeController extends AbstractController
         $form=$this->createForm(EmployeType::class, $employe);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()){
-           $this->employeRepository->save($employe, true);
-           $this->addFlash('success',"Employe ajouté avec succès");
-            return $this->redirectToRoute('app_employe_list');
-
+          //Champs mappés $form->getData() remplit l'entité $employe
+          //Chmaps personnalisés ou non mappés
+             $pays=$form->get("pays")->getData();
+             $ville=$form->get("ville")->getData();
+             $rue=$form->get("pays")->getData();
+             $employe->setAdresse("Rue: $rue - Ville: $ville - Pays: $pays");
+             $this->employeRepository->save($employe, true);
+             $this->addFlash('success',"Employe ajouté avec succès");
+             return $this->redirectToRoute('app_employe_list');
         }
 
          return $this->render('employe/form.html.twig', [

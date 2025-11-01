@@ -50,12 +50,25 @@ class EmployeType extends AbstractType
                    "expanded" => true,
                    'data' => false
                 ])
-            ->add('adresse',TextareaType::class, [
+          /*  ->add('adresse',TextareaType::class, [
                 'required' => false,
                 "attr" => [
                     'rows' => 4,
                 ],
-             ])
+             ])*/
+              ->add('pays',TextType::class, [
+                 'required'=>false,
+                  "mapped"=>false
+              ])
+              ->add('ville',TextType::class, [
+                 'required'=>false,
+                  "mapped"=>false
+              ])
+              ->add('rue',TextType::class, [
+                 'required'=>false,
+                  "mapped"=>false
+              ])
+          
           
             ->add("btnSaveDept",SubmitType::class,[
                 "label"=>"Enregistrer l'Employe",

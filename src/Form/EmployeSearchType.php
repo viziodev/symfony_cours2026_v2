@@ -19,10 +19,12 @@ class EmployeSearchType extends AbstractType
         $builder
            ->add('numero', TextType::class, [
                 'label' => 'Numéro Employé',
+                'required' => false,
                 'attr' => [
                     'placeholder' => 'Rechercher par numéro...',
                     "class"=>'form-control',
                     'autocomplete' => 'off',
+                  
                 ],
              ])
               ->add('isArchived',ChoiceType::class, [
@@ -39,6 +41,7 @@ class EmployeSearchType extends AbstractType
              ->add('departement', EntityType::class, [
                 'class' => Departement::class,
                 'choice_label' => 'name',
+                'data' => $options['departement_default'] ?? null,
               ])
            
         ;
@@ -47,7 +50,8 @@ class EmployeSearchType extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-          'data_class' => EmployeSearchFormDto::class,
+            'data_class' => EmployeSearchFormDto::class,
+            'departement_default'=> null,
              "attr"=>[
                  "data-turbo"=>'false'
              ]

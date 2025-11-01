@@ -62,7 +62,7 @@
                                 <td>{{employe.nomComplet}}</td>
                                 <td>{{employe.telephone}}</td>
                                 <td>{{employe.embaucheAt|date("d/m/Y")}}</td>
-                                <td>{{employe.departement.name}}</td>
+                                <td>{{employe.departementName}}</td>
                                 <td>{% include "components/statut.html.twig" with {active:employe.isArchived, color:'success'} %}</td>
                                 <td>
                                     <div class="btn-group">
