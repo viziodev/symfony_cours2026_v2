@@ -36,12 +36,14 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
+                {% if is_granted('ROLE_ADMIN')%}
                     <li class="nav-item">
                         <a class="nav-link" href="dashboard.html">Tableau de bord</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" href="{{path('app_departement_list')}}">Departement</a>
                     </li>
+                {% endif %}
                      <li class="nav-item">
                         <a class="nav-link " href="{{path('app_employe_list')}}">Employes</a>
                     </li>
@@ -49,13 +51,17 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user-circle"></i> Admin
+                            <i class="fas fa-user-circle"></i> {{ app.user ? app.user.nomComplet : 'User' }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="#">Profil</a></li>
+                            <li><a class="dropdown-item" href="#"> {{ app.user ? app.user.roles[0] : '' }}</a></li>
                             <li><a class="dropdown-item" href="#">Paramètres</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="index.html">Déconnexion</a></li>
+                            <li>
+                             {% if app.user %}
+                                     <a  class="dropdown-item" href="{{ path('app_logout') }}">Deconnexion</a>
+                              {% endif %}
+                            </li>
                         </ul>
                     </li>
                 </ul>

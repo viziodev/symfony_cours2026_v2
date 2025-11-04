@@ -9,12 +9,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 #[ORM\Entity(repositoryClass: EmployeRepository::class)]
-class Employe
+class Employe extends User
 {
-    #[ORM\Id]
-    #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+
 
     #[ORM\Column(length: 200)]
     #[Assert\NotBlank(message:"Le nom et le prenom de l'employe est obligatoire")]
@@ -67,10 +64,23 @@ class Employe
     )]
     private ?\DateTimeImmutable $embaucheAt = null;
 
-    public function getId(): ?int
-    {
-        return $this->id;
-    }
+
+
+    //nom de l'image 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $photo = null;
+
+    //Champ du tampon non mappé a la base de donnees
+    #[Assert\NotNull(message:"La photo de l'employe est obligatoire")]
+    #[Assert\Image(
+        maxSize: '2M',
+        mimeTypes: ['image/jpeg', 'image/png'],
+        mimeTypesMessage: 'Veuillez télécharger une image valide (JPEG ou PNG).',
+        maxSizeMessage: 'La taille maximale du fichier  est de 2 Mo.'       
+    )]
+     private $photoFile;
+
+    
 
     public function getNomComplet(): ?string
     {
@@ -176,6 +186,36 @@ class Employe
     public function setEmbaucheAt(?\DateTimeImmutable $embaucheAt): static
     {
         $this->embaucheAt = $embaucheAt;
+
+        return $this;
+    }
+
+    public function getPhoto(): ?string
+    {
+        return $this->photo;
+    }
+
+    public function setPhoto(?string $photo): static
+    {
+        $this->photo = $photo;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of photoFile
+     */
+    public function getPhotoFile()
+    {
+        return $this->photoFile;
+    }
+
+    /**
+     * Set the value of photoFile
+     */
+    public function setPhotoFile($photoFile): self
+    {
+        $this->photoFile = $photoFile;
 
         return $this;
     }

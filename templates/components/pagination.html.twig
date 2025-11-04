@@ -1,15 +1,16 @@
  {% if nbrePage>0 %}
+
                 <!-- Pagination -->
                     <nav aria-label="Page navigation" class="mt-4">
                         <ul class="pagination justify-content-center">
                             <li class="page-item {{pageEncours<=1 ? 'disabled' }} ">
-                                <a class="page-link" href="{{path('app_departement_list',{page:pageEncours-1})}}" tabindex="-1" aria-disabled="true">Précédent</a>
+                                <a class="page-link" href="{{path(pathName,app.request.query.all|merge({page:pageEncours - 1 }))}}" tabindex="-1" aria-disabled="true">Précédent</a>
                             </li>
                             {% for index in 1..nbrePage %}
-                                    <li class="page-item {{pageEncours==index ? 'active'}} "><a class="page-link" href="{{path(pathName,{page:index})}}">{{index}}</a></li>
+                                    <li class="page-item {{pageEncours==index ? 'active'}} "><a class="page-link" href="{{path(pathName,app.request.query.all|merge({page:index }))}}">{{index}}</a></li>
                             {% endfor %}
                             <li class="page-item">
-                                <a class="page-link {{pageEncours>=nbrePage ? 'disabled' }}" href="{{path(pathName,{page:pageEncours+1  })}}">Suivant</a>
+                                <a class="page-link {{pageEncours>=nbrePage ? 'disabled' }}" href="{{path(pathName,app.request.query.all|merge({page:pageEncours + 1 }))}}">Suivant</a>
                             </li>
                         </ul>
                     </nav>

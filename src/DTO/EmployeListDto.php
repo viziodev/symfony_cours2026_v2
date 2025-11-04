@@ -11,6 +11,7 @@ class EmployeListDto
     public bool $isArchived ;
     public DateTimeImmutable $embaucheAt ; 
     public string  $departementName ; 
+    public ?string $photo;
 
     //Mappers 
     public static function fromEntitie(Employe $entity): EmployeListDto
@@ -23,6 +24,7 @@ class EmployeListDto
         $dto->isArchived = $entity->isArchived();
         $dto->embaucheAt = $entity->getEmbaucheAt();
         $dto->departementName = $entity->getDepartement() ? $entity->getDepartement()->getName() : 'N/A';
+        $dto->photo = $entity->getPhoto()?'/uploads/employes/'.$entity->getPhoto() :'/uploads/employes/default.png';
         return $dto;    
     }
 

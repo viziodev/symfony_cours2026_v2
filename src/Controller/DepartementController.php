@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Attribute\Route;
 final class DepartementController extends AbstractController
 {
     //Nombre d'element par page
-    private const LIMIT=4;
+   
     public function __construct(private readonly DepartementRepository $departementRepository)
     {
         
@@ -45,15 +45,15 @@ final class DepartementController extends AbstractController
 
 
         $page=$request->query->get("page",1);
-        $offset=($page-1)*self::LIMIT;
+        $offset=($page-1)*$this->getParameter('LIMIT_PAR_PAGE');
         //Entites
          $departements=$this->departementRepository->findBy([],[
             "id"=>"desc"
-         ],self::LIMIT, $offset);
+         ],$this->getParameter('LIMIT_PAR_PAGE'), $offset);
         //DTOs
           $departementsDto=DepartementListDto::fromEntities($departements);
             $count =$this->departementRepository->count([]);
-            $nbrePage=  ceil($count /self::LIMIT);
+            $nbrePage=  ceil($count /$this->getParameter('LIMIT_PAR_PAGE'));
             return $this->render('departement/list.html.twig', [
                 'departements' => $departementsDto,
                 "nbrePage"=>$nbrePage,
